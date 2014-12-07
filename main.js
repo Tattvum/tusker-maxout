@@ -1,5 +1,5 @@
 (function() {
-  $g.init("myCanvas");
+  var $g = $GRAPHICS.create("myCanvas");
 
   var n=40;
   var gridSize = $g.canvas().width/n;
@@ -7,63 +7,39 @@
   var rw = 30;
   var rh = 20;
 
+  var $grid = $GRID.create(gridSize, $g);
+
   function frame() {
-    var ctx = $g.context();
     //clear all
-    $g.background(255, 255, 255);
+    $grid.background(255, 255, 255);
 
     //set line color
-    ctx.strokeStyle = 'rgb(250, 242, 242)';
-    ctx.lineWidth = 1;
+    $grid.lineWidth(1);
+    $grid.strokeStyle('rgb(250, 242, 242)');
 
     //draw grid
-    for (var i=0; i < 400; i+=gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0,i);
-        ctx.lineTo(400, i);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(i,0);
-        ctx.lineTo(i, 400);
-        ctx.stroke();
+    for (var i=0; i <= n; i++) {
+        $grid.line(0, i, n, i);
+        $grid.line(i,0, i, n);
     }
 
     //draw wall
-    ctx.save();
-    ctx.translate(wallOffset*gridSize, wallOffset*gridSize);
-    ctx.lineWidth = 2;
+    $grid.save();
+    $grid.translate(wallOffset, wallOffset);
+    $grid.lineWidth(2);
 
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgb(0, 0, 0)';
-    ctx.moveTo(0,0);
-    ctx.lineTo(38*gridSize, 0);
-    ctx.stroke();
+    $grid.line(0,0,38,0, 'black');
 
     //draw rectangle
-    ctx.save();
-    ctx.translate(2*wallOffset*gridSize, 0);
+    $grid.save();
+    $grid.translate(2*wallOffset, 0);
 
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgb(200, 200, 200)';
-    ctx.moveTo(0,0);
-    ctx.lineTo(0, rh*gridSize);
-    ctx.stroke();
+    $grid.line(0,0,0,rh, 'grey');
+    $grid.line(0,rh,rw,rh, 'red');
+    $grid.line(rw,rh,rw,0, 'blue');
 
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgb(255, 0, 0)';
-    ctx.moveTo(0, rh*gridSize);
-    ctx.lineTo(rw*gridSize, rh*gridSize);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgb(0, 0, 255)';
-    ctx.moveTo(rw*gridSize, rh*gridSize);
-    ctx.lineTo(rw*gridSize, 0);
-    ctx.stroke();
-
-    ctx.restore();
-    ctx.restore();
+    $grid.restore();
+    $grid.restore();
   }
 
   window.addEventListener('keydown', function(evt) {
@@ -85,7 +61,12 @@
           rw -= 2;
           break;
     }
-  }, false);
+  });
+
+  window.addEventListener('mousedown', function(evt) {
+    rw += 2;
+    rh -= 1;
+  });
 
   $g.animate(frame);
 })();

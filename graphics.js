@@ -1,74 +1,136 @@
-requestAnimFrame = (function(callback) {
-  return window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
-    function(callback) {
-      window.setTimeout(callback, 1000 / 60);
-    };
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//  GRAPHICS CLASS
+//------------------------------------------------------------------------------
+var $GRAPHICS = (function() {
+  return {
+    create : function(canvasId) {
+      return (function() {
+//------------------------------------------------------------------------------
+        var _canvas = document.getElementById(canvasId);
+        var _context = _canvas.getContext('2d');
+
+        var _rAF = function(callback) {
+          window.requestAnimationFrame(callback);
+        };
+
+        var _clear = function() {
+          _context.clearRect(0, 0, _canvas.width, _canvas.height);
+        };
+
+        return {
+//------------------------------------------------------------------------------
+
+          canvas : function() {
+            return _canvas;
+          },
+
+          context : function() {
+            return _context;
+          },
+
+          rect : function(rec) {
+            _context.beginPath();
+            _context.rect(rec.x, rec.y, rec.width, rec.height);
+            _context.fillStyle = '#8E5500';
+            _context.fill();
+            _context.lineWidth = rec.borderWidth;
+            _context.strokeStyle = 'black';
+            _context.stroke();
+          },
+
+          clear : function() {
+            _clear();
+          },
+
+          background : function(r, g, b) {
+            _context.fillStyle = 'rgb('+r+','+g+','+b+')';
+            _clear();
+          },
+
+          line : function(x1, y1, x2, y2, clr) {
+            _context.beginPath();
+            if(typeof clr !== "undefined") {
+              _context.strokeStyle = clr;
+            }
+            _context.moveTo(x1, y1);
+            _context.lineTo(x2, y2);
+            _context.stroke();
+          },
+
+          animate : function(render) {
+            var animLoop = function() {
+                render();
+                _rAF(function() {
+                  animLoop();
+                });
+            };
+            // wait one second before starting animation
+            //setTimeout(function() {
+              animLoop();
+            //}, 1);
+          }
+
+//------------------------------------------------------------------------------
+        };
+      })();
+//------------------------------------------------------------------------------
+    }
+  };
 })();
 
-var $g = (function() {
-  var _canvas = null;
-  var _context = null;
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//  GRID CLASS
+//------------------------------------------------------------------------------
 
-  var _rAF = function(callback) {
-    window.requestAnimationFrame(callback);
-  };
 
+var $GRID = (function() {
   return {
+    create : function(gridSize, graphics) {
+      return (function() {
+//------------------------------------------------------------------------------
+          var context = graphics.context();
+        return {
 //------------------------------------------------------------------------------
 
-    canvas : function() {
-      return _canvas;
-    },
+          translate : function(x, y) {
+            context.translate(x * gridSize, y * gridSize);
+          },
 
-    context : function() {
-      return _context;
-    },
+          save : function() {
+            context.save();
+          },
 
-    init : function(canvasId) {
-      _canvas = document.getElementById(canvasId);
-      _context = _canvas.getContext('2d');
-    },
+          restore : function() {
+            context.restore();
+          },
 
-    rect : function(rec) {
-      _context.beginPath();
-      _context.rect(rec.x, rec.y, rec.width, rec.height);
-      _context.fillStyle = '#8E5500';
-      _context.fill();
-      _context.lineWidth = rec.borderWidth;
-      _context.strokeStyle = 'black';
-      _context.stroke();
-    },
+          pixel : function(n) {
+            return n * gridSize;
+          },
 
-    clear : function() {
-      _context.clearRect(0, 0, _canvas.width, _canvas.height);
-    },
+          background : function(r, g, b) {
+            graphics.background(r, g, b);
+          },
 
-    background : function(r, g, b) {
-      _context.fillStyle = 'rgb('+r+','+g+','+b+')';
-      _context.clearRect(0, 0, _canvas.width, _canvas.height);
-    },
+          lineWidth : function(n) {
+            context.lineWidth = n;
+          },
 
-    animate : function(render) {
-      var animLoop = function() {
-          render();
-          _rAF(function() {
-            animLoop();
-          });
-      };
-      //render once immediately
-      render();
-      // wait one second before starting animation
-      //setTimeout(function() {
-        animLoop();
-      //}, 1);
+          strokeStyle : function(clr) {
+            context.strokeStyle = clr;
+          },
+
+          line : function(x1, y1, x2, y2, clr) {
+            graphics.line(x1*gridSize, y1*gridSize, x2*gridSize, y2*gridSize, clr);
+          }
+
+//------------------------------------------------------------------------------
+        };
+      })();
+//------------------------------------------------------------------------------
     }
-
-//------------------------------------------------------------------------------
   };
-
 })();
 
