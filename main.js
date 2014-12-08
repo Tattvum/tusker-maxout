@@ -63,9 +63,11 @@
     }
   });
 
-  window.addEventListener('mousedown', function(evt) {
-    rw += 2;
-    rh -= 1;
+  var can = document.getElementById('myCanvas');
+  var mc = new Hammer(can);
+  mc.on("tap", function(ev) {
+    rw -= 2;
+    rh += 1;
   });
 
   $g.animate(frame);
